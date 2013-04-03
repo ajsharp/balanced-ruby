@@ -141,12 +141,14 @@ module Balanced
     def construct_from_response payload
       payload = Balanced::Utils.hash_with_indifferent_read_access payload
       return payload if payload[:uri].nil?
+      payload.reject! { |k, v| v.nil? } # remove nil values from the payload
       klass = Balanced.from_uri(payload[:uri])
       instance = klass.new payload
       payload.each do |name, value|
         klass.class_eval {
           attr_accessor name.to_s
         }
+
         # here is where our interpretations will begin.
         # if the value is a sub-resource, lets instantiate the class
         # and set it correctly
